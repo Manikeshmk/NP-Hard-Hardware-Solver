@@ -1,185 +1,195 @@
-# ⚡ NP-Hard Hardware Solver
+<div align="center">
 
-> A high-performance hardware-software co-design system for solving NP-Hard problems using FPGA acceleration and advanced SAT solving algorithms.
+<h1>⚡ NP-Hard Hardware Solver</h1>
 
-![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Language](https://img.shields.io/badge/languages-Verilog%2C%20Python-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+<p><strong>A hardware-software co-design system for solving NP-Hard problems<br>using FPGA-accelerated SAT solving and advanced constraint propagation.</strong></p>
 
-## 🎯 Overview
+<p>
+  <img src="https://img.shields.io/badge/Verilog-HDL-blue?style=flat-square&logo=v&logoColor=white" />
+  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/FPGA-Xilinx-E01E4C?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square" />
+</p>
 
-This project provides a complete implementation of specialized hardware and software for efficiently solving NP-Hard computational problems. It combines FPGA-ready Verilog hardware with optimized Python solvers.
+</div>
 
-## 🚀 Features
+---
 
-### Hardware Components
-- ✅ 10 atomic digital logic modules
-- ✅ Functional ALU and constraint evaluation units  
-- ✅ Complete SAT solver engine with unit propagation
-- ✅ Synthesizable for FPGA deployment
+## What is this?
 
-### Software Stack
-- ✅ DPLL SAT solver with unit propagation
-- ✅ CDCL solver with conflict-driven learning
-- ✅ MaxSAT solver for constraint optimization
-- ✅ Portfolio-based parallel solving
-- ✅ Problem encoders for multiple domains
+This project implements a complete hardware-software co-design pipeline that accelerates the solving of NP-Hard combinatorial problems. The hardware side provides parallel FPGA-ready SAT solver logic in Verilog, while the software side offers multiple SAT solving algorithms in Python — DPLL, CDCL, and MaxSAT — along with encoders that translate real-world problems (TSP, graph coloring, knapsack) into SAT instances.
 
-### Supported Problems
-- **Boolean Satisfiability (SAT)** - 3-SAT, k-SAT, CNF
-- **Traveling Salesman Problem (TSP)**
-- **Graph Coloring** - Vertex-color assignment
-- **0/1 Knapsack** - Item selection
-- **Constraint Satisfaction (CSP)**
+The design follows an **atomic design hierarchy**: atoms → molecules → organisms, where each layer builds on the one before it.
 
-## 📋 Requirements
+---
 
-- Python 3.9+
-- NumPy, SciPy, Matplotlib
-- iverilog (for hardware simulation)
+## Architecture
 
-## ⚙️ Installation
-
-```bash
-git clone https://github.com/Manikeshmk/-NP-Hard-Hardware-Solver
-cd NP_Hard_solver
-pip install -r requirements.txt
-make all
+```
+NP_Hard_solver/
+│
+├── hardware/
+│   ├── atoms/                 # SR Latch, D Flip-Flop, Adders, Comparators
+│   ├── molecules/             # ALU, Constraint Evaluator, Bus Interface, FSM
+│   ├── organisms/             # SAT Solver Core, Unit Propagation, VSIDS
+│   └── testbenches/           # Simulation test suites
+│
+├── software/
+│   ├── atoms/                 # Bit operations, format converters, validators
+│   ├── molecules/             # TSP, Graph Coloring, Knapsack encoders
+│   ├── organisms/             # DPLL, CDCL, MaxSAT, Parallel solvers
+│   └── pages/                 # CLI application and benchmark runner
+│
+├── Makefile
+└── requirements.txt
 ```
 
-## 🎮 Quick Start
+---
 
-### Run Demo
+## Hardware Modules
+
+| Layer | Module | Description |
+|-------|--------|-------------|
+| Atoms | `SR_Latch`, `D_FlipFlop` | Sequential storage primitives |
+| Atoms | `RippleCarryAdder`, `FullAdder_1bit` | Arithmetic |
+| Atoms | `Comparator_Nbit`, `Mux4to1` | Logic and selection |
+| Atoms | `ShiftRegister`, `BinaryCounter` | Data movement |
+| Atoms | `PopulationCounter`, `LeadingZeroCounter` | Bit analysis |
+| Molecules | `ArithmeticLogicUnit` | 32-bit ALU with 11 operations |
+| Molecules | `ConstraintEvaluator` | 3-literal clause evaluation |
+| Molecules | `ParallelConstraintChecker` | Simultaneous multi-clause checking |
+| Molecules | `BusInterface` | Multi-master priority bus arbiter |
+| Molecules | `StateController` | DPLL FSM (IDLE → LOAD → PROPAGATE → DECIDE → BACKTRACK → VERIFY → DONE) |
+| Organisms | `SATSolverCore` | Top-level DPLL solver with metrics |
+| Organisms | `UnitPropagationEngine` | Forced assignment detection |
+| Organisms | `VariableOrderingHeuristic` | VSIDS-inspired branching |
+| Organisms | `ConflictAnalyzer` | CDCL 1st-UIP clause learning |
+
+---
+
+## Software Modules
+
+| Module | Purpose |
+|--------|---------|
+| `utils.py` | Bit ops, DIMACS parser, solution verifier, performance counters |
+| `problem_encoders.py` | TSP, k-coloring, 0/1 knapsack, CSP, circuit SAT encoders |
+| `sat_solvers.py` | DPLL, CDCL (with VSIDS), MaxSAT solvers with statistics |
+| `parallel_solver.py` | Portfolio solver, problem decomposer, adaptive algorithm selector |
+| `main_solver.py` | CLI interface — load CNF/TSP/coloring, solve, verify, report |
+| `benchmark_runner.py` | Automated benchmark suite with plots and JSON reports |
+
+---
+
+## Supported Problems
+
+- **Boolean Satisfiability (SAT)** — 3-SAT, k-SAT, CNF (DIMACS format)
+- **Traveling Salesman Problem** — Encoded via position-visit constraints
+- **Graph k-Coloring** — Vertex-color variable encoding
+- **0/1 Knapsack** — Forbidden subset clause generation
+- **Constraint Satisfaction (CSP)** — AllDifferent, implication, equivalence
+- **Circuit SAT** — AND, OR, XOR, full adder gate encoding
+
+---
+
+## Performance
+
+| Solver | Avg Time (20-var 3-SAT) | Decisions | Conflicts |
+|--------|------------------------|-----------|-----------|
+| DPLL | ~2.5 ms | ~280 | ~450 |
+| CDCL | ~0.08 ms | ~28 | ~45 |
+| Hardware | ~1 µs | N/A | N/A |
+
+---
+
+## Requirements
+
+- Python 3.9+
+- `numpy`, `scipy`, `matplotlib`
+- `iverilog` (for hardware simulation)
+- Xilinx Vivado (optional, for FPGA synthesis)
+
+---
+
+## Setup
+
+```bash
+git clone https://github.com/Manikeshmk/NP-Hard-Hardware-Solver
+cd NP-Hard-Hardware-Solver
+pip install -r requirements.txt
+```
+
+---
+
+## Usage
+
+**Run the demo:**
 ```bash
 python software/pages/main_solver.py --demo
 ```
 
-### Solve CNF Problem
+**Solve a CNF file with CDCL:**
 ```bash
 python software/pages/main_solver.py -f problem.cnf --solve-cdcl --verify
 ```
 
-### Run Benchmarks
+**Run the benchmark suite:**
 ```bash
 python software/pages/benchmark_runner.py
 ```
 
-### Hardware Simulation
+**Simulate the hardware SAT core:**
 ```bash
 make simulate-sat-core
 ```
 
-## 📁 Project Structure
-
-```
-NP_Hard_solver/
-├── hardware/
-│   ├── atoms/              # Basic digital components
-│   ├── molecules/          # Functional units
-│   └── organisms/          # SAT solver engine
-├── software/
-│   ├── atoms/              # Utilities
-│   ├── molecules/          # Problem encoders
-│   ├── organisms/          # Solvers
-│   └── pages/              # Applications
-├── Makefile                # Build system
-└── requirements.txt        # Dependencies
-```
-
-## 🏗️ Architecture
-
-### Hardware Modules (4,600 LOC)
-- **Atoms**: SR Latch, D Flip-Flop, Comparators, Adders, Counters
-- **Molecules**: 32-bit ALU, Constraint Evaluator, Parallel Checker
-- **Organisms**: SAT Solver Core, Unit Propagation Engine
-
-### Software Modules (3,750 LOC)
-- **Atoms**: Bit operations, format converters
-- **Molecules**: TSP, Graph Coloring, Knapsack encoders
-- **Organisms**: DPLL, CDCL, MaxSAT, Parallel solvers
-- **Pages**: CLI application, benchmarking
-
-## 📊 Performance
-
-| Algorithm | Time | Conflicts | Decisions |
-|-----------|------|-----------|-----------|
-| DPLL | 2.5ms | 450 | 280 |
-| CDCL | 0.08ms | 45 | 28 |
-| Hardware | ~1µs | N/A | N/A |
-
-## 🛠️ Build Targets
-
-```bash
-make all              # Build everything
-make hardware         # Compile Verilog
-make software         # Python modules
-make simulate         # Run simulations
-make test             # Unit tests
-make benchmark        # Performance tests
-make clean            # Remove artifacts
-```
-
-## 💻 Usage
-
-### As a SAT Solver
+**Use as a library:**
 ```python
 from software.organisms.sat_solvers import CDCLSolver
-solver = CDCLSolver()
-result = solver.solve(clauses)
+
+clauses = [[1, 2, 3], [-1, -2, 4], [-3, -4, 5]]
+solver = CDCLSolver(clauses, num_vars=5)
+result = solver.solve()
+print(result)
 ```
 
-### Problem Encoding
+**Encode a graph coloring problem:**
 ```python
-from software.molecules.problem_encoders import TSPEncoder
-encoder = TSPEncoder()
-clauses = encoder.encode(distances, cities)
+import numpy as np
+from software.molecules.problem_encoders import GraphColoringEncoder
+
+adj = np.array([[0,1,1],[1,0,1],[1,1,0]])
+encoder = GraphColoringEncoder(adj, num_colors=3)
+clauses, num_vars = encoder.encode_coloring()
 ```
-
-## 📚 Key Modules
-
-### Hardware (Verilog)
-| File | Lines | Purpose |
-|------|-------|---------|
-| basic_gates.v | 1200 | Fundamental components |
-| memory_and_logic.v | 800 | Memory & logic |
-| alu_and_controllers.v | 900 | Processing units |
-| sat_solver_engine.v | 1100 | SAT core |
-
-### Software (Python)
-| Module | Lines | Purpose |
-|--------|-------|---------|
-| utils.py | 350 | Utilities |
-| problem_encoders.py | 650 | Encoding |
-| sat_solvers.py | 800 | SAT solvers |
-| parallel_solver.py | 700 | Parallelization |
-| main_solver.py | 550 | CLI app |
-| benchmark_runner.py | 700 | Benchmarks |
-
-## 🤝 Contributing
-
-Contributions are welcome! Areas for enhancement:
-- GPU acceleration
-- Additional problem encoders
-- Advanced heuristics
-- ML-based solver selection
-- FPGA deployment examples
-
-## 📄 License
-
-MIT License
-
-## 🔗 References
-
-- DPLL Algorithm: Davis-Putnam-Logemann-Loveland
-- CDCL: Conflict-Driven Clause Learning
-- VSIDS: Variable State Independent Decaying Sum
-- SAT Competition: https://www.satcompetition.org/
-
-## ⭐ Show Your Support
-
-If useful, please star on GitHub!
 
 ---
 
-**Version**: 1.0.0 | **Last Updated**: May 2026
-"# NP-Hard-Hardware-Solver" 
+## Build Targets
+
+```bash
+make all                  # Build everything
+make hardware             # Compile Verilog
+make simulate-sat-core    # Run SAT core testbench
+make software             # Syntax-check Python modules
+make test                 # Run unit tests
+make benchmark            # Run full benchmark suite
+make demo                 # Quick demo
+make clean                # Remove build artifacts
+make help                 # Show all targets
+```
+
+---
+
+## References
+
+- Davis, M., Logemann, G., Loveland, D. — *A Machine Program for Theorem Proving* (DPLL, 1962)
+- Marques-Silva, J., Sakallah, K. — *GRASP: A Search Algorithm for Propositional Satisfiability* (CDCL, 1999)
+- Moskewicz, M. et al. — *Chaff: Engineering an Efficient SAT Solver* (VSIDS, 2001)
+- SAT Competition: https://www.satcompetition.org/
+
+---
+
+<div align="center">
+  <sub>Built with Verilog and Python · MIT License</sub>
+</div>
