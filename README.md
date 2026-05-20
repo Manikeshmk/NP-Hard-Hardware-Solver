@@ -1,5 +1,5 @@
 ![Repo visits](https://hits.sh/github.com/Manikeshmk/NP-Hard-Hardware-Solver.svg?label=repo%20visits)
-![GitHub stars](https://img.shields.io/github/stars/Manikeshmk/WNP-Hard-Hardware-Solver?style=logo&logo=github&label=⭐%20Stars) 
+![GitHub stars](https://img.shields.io/github/stars/Manikeshmk/NP-Hard-Hardware-Solver?style=logo&logo=github&label=⭐%20Stars) 
 ![GitHub forks](https://img.shields.io/github/forks/Manikeshmk/NP-Hard-Hardware-Solver?style=social)
 
 <div align="center">
